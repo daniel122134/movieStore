@@ -51,20 +51,29 @@ public class user {
         }
         return collection;
     }
-    public void saveInMemeory() throws IOException, CsvException {
-        CSVReader mveReader = new CSVReader(new FileReader("c:\\test\\test.csv"));
-        List<String[]> tt = mveReader.readAll();
+
+    public String[] userToArray(){
         String[] userData = new String[4];
         userData[0] = this.username;
         userData[1] = this.password;
         userData[2] = String.valueOf(this.age);
         userData[3] = this.name;
-
-        tt.add(userData);
-                try (CSVWriter writer = new CSVWriter(new FileWriter("c:\\test\\test.csv"))) {
+        return userData;
+    }
+    public user(String[] userdata){
+        this.username = userdata[0];
+        this.password = userdata[1];
+        this.age = Integer.valueOf(userdata[2]);
+        this.name= userdata[3];
+    }
+    public void saveInMemeory() throws IOException {
+        csvScanner mveReader = new csvScanner("test.csv", true);
+        ArrayList<String[]> tt = mveReader.readAll();
+        tt.add(this.userToArray());
+                csvScanner writer = new csvScanner("test.csv",true);
                     writer.writeAll(tt);
                 }
-            }
+
 
 
 

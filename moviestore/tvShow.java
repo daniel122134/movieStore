@@ -1,7 +1,7 @@
 package moviestore;
 
-public class tvShow extends buyable {
-    private boolean isAnime;
+public class tvShow extends FilmProduct {
+    public boolean isAnime;
     private int numOfepisodes;
     ;
 

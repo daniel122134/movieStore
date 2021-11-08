@@ -9,12 +9,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import com.google.gson.Gson;
 
+
+
+
+//implement jsons or just go for sqlite?
 public class main {
     static Scanner in = new Scanner(System.in);
 
-    public static void openShop(user meber) throws IOException, CsvException {
-        user member = meber;
+    public static void openShop(user member1)  {
+        user member = member1;
         moviemenu men = new moviemenu();
         men.addMovies();
         tvmenu menu = new tvmenu();
@@ -64,7 +69,7 @@ public class main {
                                 break;
                             case (-5):
                                 System.out.println("search:");
-                                men.searchMovie(in.next());
+                                men.search(in.next());
 
                             case (-9):
                                 ok = false;
@@ -115,7 +120,7 @@ public class main {
                                 break;
                             case (-5):
                                 System.out.println("search:");
-                                menu.searchMovie(in.next());
+                                menu.search(in.next());
 
                             case(-9):
                                 menu.resetfilter();
@@ -134,25 +139,66 @@ public class main {
         }
     }
 
-    private static List<String[]> createCsvDataSimple(user m) {
-        String[] header = {"name", "username", "password", "collection"};
-        String[] record1 = {m.getName(), m.getUsername(), m.getPassword(), m.getCollection().get(0).getName()};
-        String[] record2 = {"2", "second name", "address 2", "22222"};
 
-        List<String[]> list = new ArrayList<>();
-        list.add(header);
-        list.add(record1);
-        list.add(record2);
 
-        return list;
-    }
+    public static void main(String[] args)  {
 
-    public static void main(String[] args) throws IOException, CsvException {
+        String[] userData = new String[4];
+        userData[0] = "av";
+        userData[1] = "ner";
+        userData[2] = "5";
+        userData[3] = "name";
+        user myiuser = new user(userData);
+        Gson gson = new Gson();
+        String userwithj = gson.toJson(myiuser);
+        System.out.println(userwithj);
+
+
+
+
+
+
+
+
+
 
         Scanner in = new Scanner(System.in);
         System.out.println("welcome to MovieTime");
 
         //setting up the libary
+        File myObj = new File("filename.csv");
+        Scanner myReader = null;
+        try {
+            myReader = new Scanner(myObj);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("file missing quitting");
+            System.exit(0);
+        }
+        ArrayList<String[]> result = new ArrayList<>();
+        while (myReader.hasNextLine()){
+            String wholeLine = myReader.nextLine();
+            int numofcommas = 0;
+            for(int i = 0; i < wholeLine.length(); i++){
+                if(wholeLine.charAt(i) == ','){
+                    numofcommas++;
+                }
+            }
+                String[] row = new String[numofcommas+1];
+                for(int i =0; i < row.length-1; i++){
+                    String word = wholeLine.substring(0, wholeLine.indexOf(','));
+                    wholeLine = wholeLine.substring(wholeLine.indexOf(',')+ 1);
+                    row[i] = word;
+                }
+                row[row.length-1] = wholeLine;
+                result.add(row);
+            }
+
+
+
+
+
+
 
 
 //regisration place
@@ -161,11 +207,21 @@ public class main {
             System.out.println("type login or anything else to register...");
             if (in.next().equals("login")) {
                 System.out.println("enter username:");
-                String check = in.next();
-                CSVReader userReader = new CSVReader(new FileReader("c:\\test\\test.csv"));
+                String username = in.next();
+                csvScanner userReader = null;
+                try {
+                    userReader = new csvScanner("test.csv", true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    e.printStackTrace();
+                    System.out.println("file missing quitting");
+                    System.exit(0);
+                }
                 List<String[]> users = userReader.readAll();
                 for (int i = 0; i < users.size(); i++) {
-                    if (users.get(i)[0].equals(check)) {
+                    String savedUsername = users.get(i)[0];
+                    String savedPassword = users.get(i)[1];
+                    if (users.get(i)[0].equals(username)) {
                         System.out.println("enter password:");
                         if (in.next().equals(users.get(i)[1])) {
                             System.out.println("login succesful");
@@ -183,16 +239,24 @@ public class main {
 
 
             } else {
+                String[] userReg = new String[4];
                 System.out.println("full name");
-                String name = in.next();
+                userReg[0] = in.next();
                 System.out.println("username");
-                String username = in.next();
+                userReg[1] = in.next();
                 System.out.println("age");
-                int age = in.nextInt();
+                userReg[2] = in.next();
                 System.out.println("password");
-                String password = in.next();
-                user user2 = new user(username, password, String.valueOf(age), name);
-                user2.saveInMemeory();
+                userReg[3] = in.next();
+                user user2 = new user(userReg);
+                try {
+                    user2.saveInMemeory();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    e.printStackTrace();
+                    System.out.println("file empty quitting");
+                    System.exit(0);
+                }
                 openShop(user2);
 
 
@@ -202,20 +266,4 @@ public class main {
 }
 
 
-/*
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("userinfo.txt"), "utf-8"))) {
-                writer.append(us.toString());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-
-        }
-    }
-}
-*/
